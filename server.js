@@ -46,7 +46,20 @@ app.post('/todos', (req, res) => {
 
   todos.push(body);
 
-  res.json(body);
+  res.json(todos);
+});
+
+// DELETE /todos/:id
+app.delete('/todos/:id', (req, res) => {
+  const todoId = parseInt(req.params.id);
+  const matchedTodo = _.findWhere(todos, { id: todoId });
+
+  if (!matchedTodo) {
+    res.status(404).json({ error: 'Todo does not exist' });
+  } else {
+    todos = _.without(todos, matchedTodo);
+    res.json(matchedTodo);
+  }
 });
 
 app.listen(PORT, () => {
