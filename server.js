@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const _ = require('underscore');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,10 +19,10 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
   const todoId = parseInt(req.params.id);
 
-  const todo = todos.filter(todo => todo.id === todoId);
+  const matchedTodo = _.findWhere(todos, { id: todoId });
 
-  if (todo.length > 0) {
-    res.json(todo);
+  if (matchedTodo) {
+    res.json(matchedTodo);
   } else {
     res.status(404).send('Todo does not exist!');
   }
@@ -29,7 +30,17 @@ app.get('/todos/:id', (req, res) => {
 
 // POST /todos
 app.post('/todos', (req, res) => {
-  const body = req.body;
+  const body = _.pick(req.body, 'description', 'completed');
+
+  if (
+    !_.isBoolean(body.completed) ||
+    !_.isString(body.description) ||
+    body.description.trim().length === 0
+  ) {
+    return res.status(400).send();
+  }
+
+  body.description = body.description.trim();
 
   body.id = todoNextId++;
 
