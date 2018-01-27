@@ -1,29 +1,20 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-let todos = [
-  {
-    id: 1,
-    description: 'Water the plants',
-    completed: false,
-  },
-  {
-    id: 2,
-    description: 'Go to market',
-    completed: false,
-  },
-];
+app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Todo API root');
-});
+let todos = [];
+let todoNextId = 1;
 
+// GET /todos
 app.get('/todos', (req, res) => {
   res.json(todos);
 });
 
+// GET todos/:id
 app.get('/todos/:id', (req, res) => {
   const todoId = parseInt(req.params.id);
 
@@ -34,6 +25,17 @@ app.get('/todos/:id', (req, res) => {
   } else {
     res.status(404).send('Todo does not exist!');
   }
+});
+
+// POST /todos
+app.post('/todos', (req, res) => {
+  const body = req.body;
+
+  body.id = todoNextId++;
+
+  todos.push(body);
+
+  res.json(body);
 });
 
 app.listen(PORT, () => {
