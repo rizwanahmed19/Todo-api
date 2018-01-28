@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 let todos = [];
 let todoNextId = 1;
 
-// GET /todos?completed=true
+// GET /todos?completed=true&q=house
 app.get('/todos', (req, res) => {
   const queryParams = req.query;
   let filteredTodos = todos;
@@ -25,6 +25,13 @@ app.get('/todos', (req, res) => {
     queryParams.completed === 'false'
   ) {
     filteredTodos = _.where(todos, { completed: false });
+  }
+
+  if (queryParams.hasOwnProperty('q') && queryParams.q.trim().length > 0) {
+    filteredTodos = filteredTodos.filter(
+      todo =>
+        todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > 0,
+    );
   }
 
   res.json(filteredTodos);
