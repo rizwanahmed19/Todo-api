@@ -10,9 +10,24 @@ app.use(bodyParser.json());
 let todos = [];
 let todoNextId = 1;
 
-// GET /todos
+// GET /todos?completed=true
 app.get('/todos', (req, res) => {
-  res.json(todos);
+  const queryParams = req.query;
+  let filteredTodos = todos;
+
+  if (
+    queryParams.hasOwnProperty('completed') &&
+    queryParams.completed === 'true'
+  ) {
+    filteredTodos = _.where(todos, { completed: true });
+  } else if (
+    queryParams.hasOwnProperty('completed') &&
+    queryParams.completed === 'false'
+  ) {
+    filteredTodos = _.where(todos, { completed: false });
+  }
+
+  res.json(filteredTodos);
 });
 
 // GET todos/:id
