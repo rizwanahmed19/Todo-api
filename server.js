@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const _ = require('underscore');
 
 const db = require('./db');
-const Op = db.Sequelize.Op;
+// const Op = db.Sequelize.Op;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +26,7 @@ app.get('/todos', (req, res) => {
 
   if (query.hasOwnProperty('q') && query.q.length > 0) {
     where.description = {
-      [Op.like]: '%' + query.q + '%',
+      $like: '%' + query.q + '%',
     };
   }
 

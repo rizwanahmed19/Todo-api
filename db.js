@@ -2,15 +2,20 @@ const Sequelize = require('sequelize');
 
 let sequelize;
 let env = process.env.NODE_ENV || 'development';
+let Op = Sequelize.Op;
 
 if (env === 'production') {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgresql',
-    operatorsAliases: Sequelize.Op,
+    operatorsAliases: {
+      $like: Op.iLike,
+    },
   });
 } else {
   sequelize = new Sequelize(undefined, undefined, undefined, {
-    operatorsAliases: Sequelize.Op,
+    operatorsAliases: {
+      $like: Op.like,
+    },
     dialect: 'sqlite',
     storage: __dirname + '/data/dev-todo-api.sqlite',
   });
