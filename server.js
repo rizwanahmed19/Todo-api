@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const _ = require('underscore');
 
 const db = require('./db');
+const Op = db.Sequelize.Op;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,29 +15,29 @@ let todoNextId = 1;
 
 // GET /todos?completed=true&q=house
 app.get('/todos', (req, res) => {
-  const queryParams = req.query;
-  let filteredTodos = todos;
+  const query = req.query;
+  let where = {};
 
-  if (
-    queryParams.hasOwnProperty('completed') &&
-    queryParams.completed === 'true'
-  ) {
-    filteredTodos = _.where(todos, { completed: true });
-  } else if (
-    queryParams.hasOwnProperty('completed') &&
-    queryParams.completed === 'false'
-  ) {
-    filteredTodos = _.where(todos, { completed: false });
+  if (query.hasOwnProperty('completed') && query.completed === 'true') {
+    where.completed = true;
+  } else if (query.hasOwnProperty('completed') && query.completed === 'false') {
+    where.completed = false;
   }
 
-  if (queryParams.hasOwnProperty('q') && queryParams.q.trim().length > 0) {
-    filteredTodos = filteredTodos.filter(
-      todo =>
-        todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > 0,
-    );
+  if (query.hasOwnProperty('q') && query.q.length > 0) {
+    where.description = {
+      [Op.like]: '%' + query.q + '%',
+    };
   }
 
-  res.json(filteredTodos);
+  db.todo
+    .findAll({ where: where })
+    .then(todos => {
+      res.json(todos);
+    })
+    .catch(e => {
+      res.status(500).json(e);
+    });
 });
 
 // GET todos/:id
