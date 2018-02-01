@@ -6,6 +6,7 @@ let env = process.env.NODE_ENV || 'development';
 if (env === 'production') {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgresql',
+    operatorsAliases: Sequelize.Op,
   });
 } else {
   sequelize = new Sequelize(undefined, undefined, undefined, {
