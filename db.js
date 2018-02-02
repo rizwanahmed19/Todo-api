@@ -10,6 +10,7 @@ if (env === 'production') {
     operatorsAliases: {
       $like: Op.iLike,
     },
+    typeValidation: true,
   });
 } else {
   sequelize = new Sequelize(undefined, undefined, undefined, {
@@ -18,6 +19,7 @@ if (env === 'production') {
     },
     dialect: 'sqlite',
     storage: __dirname + '/data/dev-todo-api.sqlite',
+    typeValidation: true,
   });
 }
 
