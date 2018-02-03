@@ -3,15 +3,11 @@ const bodyParser = require('body-parser');
 const _ = require('underscore');
 
 const db = require('./db');
-// const Op = db.Sequelize.Op;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
-let todos = [];
-let todoNextId = 1;
 
 // GET /todos?completed=true&q=house
 app.get('/todos', (req, res) => {
@@ -128,6 +124,19 @@ app.put('/todos/:id', (req, res) => {
     })
     .catch(e => {
       res.status(500).send();
+    });
+});
+
+app.post('/users', (req, res) => {
+  const body = _.pick(req.body, 'email', 'password');
+
+  db.user
+    .create(body)
+    .then(user => {
+      res.json(user.toJSON());
+    })
+    .catch(e => {
+      res.status(400).send(e);
     });
 });
 
