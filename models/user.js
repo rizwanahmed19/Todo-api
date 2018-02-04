@@ -1,5 +1,8 @@
+const bcrypt = require('bcrypt');
+const _ = require('underscore');
+
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define(
+  let User = sequelize.define(
     'user',
     {
       email: {
@@ -11,12 +14,26 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         },
       },
-      password: {
+      salt: {
         type: DataTypes.STRING,
+      },
+      password_hash: {
+        type: DataTypes.STRING,
+      },
+      password: {
+        type: DataTypes.VIRTUAL,
         allowNull: false,
         validate: {
           notEmpty: true,
           len: [7, 100],
+        },
+        set(value) {
+          const salt = bcrypt.genSaltSync(10);
+          const hashedPassword = bcrypt.hashSync(value, salt);
+
+          this.setDataValue('password', value);
+          this.setDataValue('salt', salt);
+          this.setDataValue('password_hash', hashedPassword);
         },
       },
     },
@@ -30,4 +47,11 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
   );
+
+  User.prototype.toPublicJSON = function() {
+    let json = this.toJSON();
+    return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');
+  };
+
+  return User;
 };
