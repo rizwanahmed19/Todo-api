@@ -48,10 +48,29 @@ module.exports = (sequelize, DataTypes) => {
     },
   );
 
-  User.prototype.toPublicJSON = function() {
+  User.prototype.toPublicJSON = function () {
     let json = this.toJSON();
     return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');
   };
+
+  User.authenticate = function (body) {
+    return new Promise((resolve, reject) => {
+      if (typeof body.email !== 'string' || typeof body.password !== 'string') {
+        return reject();
+      }
+
+      User.findOne({ where: { email: body.email } })
+        .then(user => {
+          if (user && bcrypt.compareSync(body.password, user.get('password_hash'))) {
+            return resolve(user);
+          } else {
+            return reject();
+          }
+        })
+        .catch(e => reject())
+    });
+
+  }
 
   return User;
 };
